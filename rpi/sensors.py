@@ -55,10 +55,12 @@ while True:
         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
     # Print the ADC values.
     print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+    '''
     #Socket send
     message = '| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values)
     client.send("target:".encode())
     client.recv(1024).decode()
     client.send(pickle.dumps(message))
+    ''' 
     # Pause for half a second.
-    time.sleep(0.5)
+    time.sleep(0.01)
