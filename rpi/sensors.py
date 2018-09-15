@@ -1,11 +1,8 @@
 import Adafruit_ADS1x15
 import time
-import board
-import busio
-import adafruit_lsm9ds1
-
-i2c = busio.I2C(board.SCL, board.SDA)
-sensor = adafruit_lsm9ds1.LSM9DS1_I2C(i2c)
+import socket
+import pickle
+import client
 
 # Create an ADS1115 ADC (16-bit) instance.
 adc = Adafruit_ADS1x15.ADS1115()
@@ -32,6 +29,16 @@ print('Reading ADS1x15 values, press Ctrl-C to quit...')
 # Print nice channel column headers.
 print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
 print('-' * 37)
+
+# Connecting to the server
+ip = "138.197.235.123"
+print("Connecting to " + ip)
+client = socket.socket()
+client.connect((ip, 80))
+print("Pinging server:")
+client.send("ping".encode())
+print("Server says: " + client.recv(1024).decode())
+
 # Main loop.
 while True:
     # Read all the ADC channel values in a list.
@@ -46,17 +53,12 @@ while True:
         # values[i] = adc.read_adc(i, gain=GAIN, data_rate=128)
         # Each value will be a 12 or 16 bit signed integer value depending on the
         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
-
-    # Read acceleration, magnetometer, gyroscope, temperature.
-    accel_x, accel_y, accel_z = sensor.acceleration
-    mag_x, mag_y, mag_z = sensor.magnetic
-    gyro_x, gyro_y, gyro_z = sensor.gyro
-    temp = sensor.temperature
-    # Print values.
-    print('Acceleration (m/s^2): ({0:0.3f},{1:0.3f},{2:0.3f})'.format(accel_x, accel_y, accel_z))
-    print('Magnetometer (gauss): ({0:0.3f},{1:0.3f},{2:0.3f})'.format(mag_x, mag_y, mag_z))
-    print('Gyroscope (degrees/sec): ({0:0.3f},{1:0.3f},{2:0.3f})'.format(gyro_x, gyro_y, gyro_z))
-    print('Temperature: {0:0.3f}C'.format(temp))ormat(*sensor.gyroscope))
-    print('Temperature: {0:0.3f}C'.format(sensor.temperature))
+    # Print the ADC values.
+    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+    #Socket send
+    message = '| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values)
+    client.send("target:".encode())
+    client.recv(1024).decode()
+    client.send(pickle.dumps(message))
     # Pause for half a second.
     time.sleep(0.5)
