@@ -23,6 +23,12 @@
     div.select {
       margin: 0 0 1em 0;
     }
+	.words {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	color: #fff;
   </style>
 
 </head>
@@ -34,7 +40,8 @@
     <div class="select">
       <select id="videoSource"></select>
     </div>
-
+	  <div class="words" contenteditable>
+  </div>
     <video muted autoplay></video>
 
     <script>
@@ -89,6 +96,38 @@
       }
 
     </script>
+	
+<script>
+  window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const recognition = new SpeechRecognition();
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  
+  let p = document.createElement('p');
+  const words = document.querySelector('.words');
+  words.appendChild(p);
+
+  recognition.addEventListener('result', e => {
+    const transcript = Array.from(e.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+
+      p.textContent = transcript;
+
+      if (e.results[0].isFinal) {
+		words.deleteContents();
+        p = document.createElement('p');
+        words.appendChild(p);
+      }
+  });
+
+  recognition.addEventListener('end', recognition.start);
+
+  recognition.start();
+
+</script>
 
 
   </div>
