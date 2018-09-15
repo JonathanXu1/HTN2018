@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+
+  <title>)</title>
+
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: none;
+    }
+
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    div.select {
+      margin: 0 0 1em 0;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="container">
+
+    <div class="select">
+      <select id="videoSource"></select>
+    </div>
+
+    <video muted autoplay></video>
+
+    <script>
+
+      'use strict';
+
+      var videoElement = document.querySelector('video');
+      var videoSelect = document.querySelector('select#videoSource');
+
+      navigator.mediaDevices.enumerateDevices()
+        .then(gotDevices).then(getStream).catch(handleError);
+
+      videoSelect.onchange = getStream;
+
+      function gotDevices(deviceInfos) {
+        for (var i = 0; i !== deviceInfos.length; ++i) {
+          var deviceInfo = deviceInfos[i];
+          var option = document.createElement('option');
+          option.value = deviceInfo.deviceId;
+          if (deviceInfo.kind === 'videoinput') {
+            option.text = deviceInfo.label || 'camera ' +
+              (videoSelect.length + 1);
+            videoSelect.appendChild(option);
+          }
+        }
+      }
+
+      function getStream() {
+        if (window.stream) {
+          window.stream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
+
+        var constraints = {
+          video: {
+            deviceId: { exact: videoSelect.value }
+          }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints).
+          then(gotStream).catch(handleError);
+      }
+
+      function gotStream(stream) {
+        window.stream = stream;
+        videoElement.srcObject = stream;
+      }
+
+      function handleError(error) {
+        console.log('Error: ', error);
+      }
+
+    </script>
+
+
+  </div>
+
+</body>
+
+</html>
