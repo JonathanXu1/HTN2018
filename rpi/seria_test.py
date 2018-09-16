@@ -10,7 +10,7 @@ except ImportError:
     import _thread as thread
 import time
 
-ser = serial.Serial('/dev/ttyACM0',9600)
+# ser = serial.Serial('/dev/ttyACM0',9600)
 
 async def hello():
     async with websockets.connect(
