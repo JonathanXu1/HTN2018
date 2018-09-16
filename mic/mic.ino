@@ -29,23 +29,35 @@ void setup()
 
 void loop()
 {
-    long noise1 = analogRead(mic1);
-    FilteredNoise1.Filter(noise1);
-    long smoothNoise1 = FilteredNoise1.Current()-diff1;
+//    long noise1 = analogRead(mic1);
+//    FilteredNoise1.Filter(noise1);
+//    long smoothNoise1 = FilteredNoise1.Current()-diff1;
+//
+//    long noise2 = analogRead(mic2);
+//    FilteredNoise2.Filter(noise2);
+//    long smoothNoise2 = FilteredNoise2.Current()-diff2;
+//    
+//    long noise3 = analogRead(mic3);
+//    FilteredNoise3.Filter(noise3);
+//    long smoothNoise3 = FilteredNoise3.Current()-diff3;
+    long sum1, sum2, sum3;
+    sum1 = sum2 = sum3 = 0;
+    for(int i = 0; i < 30; i++){
+       sum1 += analogRead(mic1);
+       sum2 += analogRead(mic2);
+       sum3 += analogRead(mic3);
+       delay(1);
+    }
+    long smoothNoise1 = sum1/30 - diff1;
+    long smoothNoise2 = sum2/30 - diff2;
+    long smoothNoise3 = sum3/30 - diff3;
 
-    long noise2 = analogRead(mic2);
-    FilteredNoise2.Filter(noise2);
-    long smoothNoise2 = FilteredNoise2.Current()-diff2;
-    
-    long noise3 = analogRead(mic3);
-    FilteredNoise3.Filter(noise3);
-    long smoothNoise3 = FilteredNoise3.Current()-diff3;
+    //Calculates angle
+    long N2X = sin(1.0472)*smoothNoise2; //60 90
+    long N2Y = cos(1.0472)*smoothNoise2;
 
-    long N2X = sin(1.0472)*smoothNoise2/sin(1.5708);
-    long N2Y = smoothNoise2;
-
-    long N3X = sin(1.0472)*smoothNoise3/sin(1.5708);
-    long N3Y = smoothNoise3;
+    long N3X = sin(1.0472)*smoothNoise3; //60 90
+    long N3Y = cos(1.0472)*smoothNoise3;
 
     long X = N3X-N2X;
 //    Serial.print("x: ");
@@ -58,7 +70,22 @@ void loop()
 //    Serial.print("Hype");
 //    Serial.println(H);     
     
-    long AR = atan2(abs(Y),abs(X))*180/3.14;  
+    long AR = atan2(abs(Y),abs(X))*180/3.14;
+    if(Y >= 0 && X >= 0){
+        AR = 90-AR;
+    } else if(Y >= 0 && X < 0){
+        AR += 270;
+    } else if(Y < 0 && X < 0){
+        AR = 270 - AR;
+    } else if(Y < 0 && X >= 0){
+        AR += 90;
+    }
+
+    if(AR < 0){
+      AR += 360;
+    }
+    AR = AR % 360;
+    
   
 //    Serial.print("Relative angle: ");
 //    Serial.println(AR);
@@ -88,12 +115,11 @@ void loop()
         angle = 90+AR;
       }
     }
-//    Serial.println(X);
-//    Serial.println(Y);
-//
-//    Serial.println(angle);
-//    
-    Serial.print(angle);
+    
+    Serial.print(X);
+    Serial.print(",");
+    Serial.print(Y);
+    //Serial.print(angle);
     Serial.print(",");
     Serial.print(smoothNoise1);
     Serial.print(","); 
