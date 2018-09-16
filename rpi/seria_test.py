@@ -12,7 +12,7 @@ except ImportError:
 import time
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-sock.bind(("10.21.62.43", 80))
+sock.bind(("10.21.62.43", 8080))
 sock.listen(2)
 (client,(ip,port))=sock.accept()
 time.sleep(1)
