@@ -6,10 +6,10 @@ import client
 import math
 
 # Matplotlib stuff
+import pandas as pd
 '''
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import pandas as pd
 plt.xlabel("X-axis")
 plt.ylabel("Y-axis")
 plt.title("Sensor readings")
