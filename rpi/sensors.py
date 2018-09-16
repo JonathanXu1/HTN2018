@@ -6,6 +6,7 @@ import client
 import math
 
 # Matplotlib stuff
+'''
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import pandas as pd
@@ -15,6 +16,7 @@ plt.title("Sensor readings")
 plt.legend()
 fig = plt.figure()
 ax = plt.axes(1,1,1)
+'''
 
 # Create an ADS1115 ADC (16-bit) instance.
 adc = Adafruit_ADS1x15.ADS1115()
@@ -105,8 +107,10 @@ while True:
     #Plotting
     df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]})
     df.append(df2)
-    ani = animation.FuncAnimation(fig, animate, interval=1000)
-    plt.show()
+    for i in range(4):
+        df[i] = exponential_smoothing(df[i], 0.05)
+    # ani = animation.FuncAnimation(fig, animate, interval=1000)
+    # plt.show()
 
     # Find angle
     N2X = math.sin(1.0472) * df[1][-1] / math.sin(1.5708)
