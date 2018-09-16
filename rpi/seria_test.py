@@ -3,6 +3,6 @@ import serial
 ser = serial.Serial('/dev/ttyACM0',9600)
 
 while True:
-    bytesToRead = ser.inWaiting()
-    data = ser.read(bytesToRead)
-    print(data)
+    ser_bytes = ser.readline()
+    decoded_bytes = float(ser_bytes[0:len(ser_bytes) - 2].decode("utf-8"))
+    print(decoded_bytes)
