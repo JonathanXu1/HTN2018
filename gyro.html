@@ -39,7 +39,7 @@ overflow-x: hidden !important;
 	color: #fff;
 	}
 	.words p {
-	font-size: 28px;
+	font-size: 24px;
 	color: red;
 	}
 </style>
@@ -193,16 +193,16 @@ function handleOrientation(event) {
 	}
 
 	if (between(dotAngle, 0, 50)) {
-		dot = scaleNum(dotAngle, 0, 50, 1140);
+		words.style.left = scaleNum(dotAngle, 0, 50, 540);
 	} else if (between(dotAngle, 50, 180)) {
-		dot = 20;
+		words.style.left = 30;
 	} else if (between(dotAngle, 181, 310)) {
-		dot = 2260;
+		words.style.left = 700;
 	} else if (between(dotAngle, 310, 360)) {
-		dot = scaleNum(dotAngle, 310, 360, 1140) + 1140;
+		words.style.left = scaleNum(dotAngle, 310, 360, 540) + 540;
 	}
 	
-	words.style.left = dot;
+
 	oldY = newY;
 }
 
