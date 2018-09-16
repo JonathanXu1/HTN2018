@@ -1,5 +1,4 @@
 import serial
-import tornado
 import socket
 import asyncio
 import datetime
@@ -19,7 +18,7 @@ async def hello():
         name = input("What's your name? ")
 
         await websocket.send(name)
-       
+
 asyncio.get_event_loop().run_until_complete(hello())
 
 
