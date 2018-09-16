@@ -92,7 +92,8 @@ while True:
         # values[i] = adc.read_adc(i, gain=GAIN, data_rate=128)
         # Each value will be a 12 or 16 bit signed integer value depending on the
         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
-
+    # Print the ADC values.
+    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
     '''
     #Socket send
     message = '| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values)
@@ -131,8 +132,6 @@ while True:
     # Serial.print("Relative angle: ")
     # Serial.println(AR)
 
-    angle = 0
-
     if Y > 0:# ar =180
         # Q1
         if X < 0:
@@ -148,8 +147,6 @@ while True:
         # Q2
         else:
             angle = 90+AR
-
-    # Print the ADC values.
-    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} | {4:>6} |'.format(*values, angle))
+    print(angle)
     # Pause for half a second.
     time.sleep(0.01)
