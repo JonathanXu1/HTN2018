@@ -10,7 +10,6 @@ ExponentialFilter<long> FilteredNoise2(3, 0);
 ExponentialFilter<long> FilteredNoise3(3, 0);
 long diff1, diff2, diff3;
 
-
 void setup()
 {
     Serial.begin(9600);
@@ -94,7 +93,8 @@ void loop()
 //
 //    Serial.println(angle);
 //    
- 
+    Serial.print(angle);
+    Serial.print(",");
     Serial.print(smoothNoise1);
     Serial.print(","); 
     Serial.print(smoothNoise2);
@@ -102,3 +102,4 @@ void loop()
     Serial.println(smoothNoise3);
     delay(50);
 }
+
