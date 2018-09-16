@@ -39,7 +39,7 @@ adc = Adafruit_ADS1x15.ADS1115()
 GAIN = 1
 
 #Create lists to store everything
-df = pd.DataFrame({'y1': 0, 'y2': 0, 'y3': 0})
+df = pd.DataFrame({'y1': 0, 'y2': 0, 'y3': 0}, index = [0])
 
 def animate():
     for i in df:
@@ -105,7 +105,7 @@ while True:
     '''
 
     #Plotting
-    df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]})
+    df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]}, index = [0])
     df.append(df2)
     for i in range(4):
         df[i] = exponential_smoothing(df[i], 0.05)
