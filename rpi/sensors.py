@@ -7,7 +7,6 @@ import math
 
 # Matplotlib stuff
 import pandas as pd
-'''
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 plt.xlabel("X-axis")
@@ -15,8 +14,6 @@ plt.ylabel("Y-axis")
 plt.title("Sensor readings")
 plt.legend()
 fig = plt.figure()
-ax = plt.axes(1,1,1)
-'''
 
 # Create an ADS1115 ADC (16-bit) instance.
 adc = Adafruit_ADS1x15.ADS1115()
@@ -42,9 +39,14 @@ GAIN = 1
 df = pd.DataFrame({'y1': 0, 'y2': 0, 'y3': 0}, index = [0])
 
 def animate():
-    for i in df:
-        df[i] = exponential_smoothing(df[i], 0.05)
-        plt.plot(df[i], label='mic %s' % i)
+    df["y1"] = exponential_smoothing(df['y1'], 0.05)
+    plt.plot(df['y1'], label='mic %s' % 1)
+
+    df['y2'] = exponential_smoothing(df['y2'], 0.05)
+    plt.plot(df['y2'], label='mic %s' % 2)
+
+    df['y3'] = exponential_smoothing(df['y3'], 0.05)
+    plt.plot(df['y3'], label='mic %s' % 3)
 
 '''simple exponential smoothing go back to last N values
  y_t = a * y_t + a * (1-a)^1 * y_t-1 + a * (1-a)^2 * y_t-2 + ... + a*(1-a)^n * 
@@ -94,8 +96,7 @@ while True:
         # values[i] = adc.read_adc(i, gain=GAIN, data_rate=128)
         # Each value will be a 12 or 16 bit signed integer value depending on the
         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
-    # Print the ADC values.
-    print('| {0:>6} | {1:>6} | {2:>6} |'.format(*values))
+
     '''
     #Socket send
     message = '| {0:>6} | {1:>6} | {2:>6} |'.format(*values)
@@ -107,28 +108,31 @@ while True:
     #Plotting
     df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]}, index = [0])
     df.append(df2)
-    df['y1'] = exponential_smoothing(df['y1'], 0.05)
-    df['y2'] = exponential_smoothing(df['y2'], 0.05)
-    df['y3'] = exponential_smoothing(df['y3'], 0.05)
+    # df['y1'] = exponential_smoothing(df['y1'], 0.05)
+    # df['y2'] = exponential_smoothing(df['y2'], 0.05)
+    # df['y3'] = exponential_smoothing(df['y3'], 0.05)
 
-    # ani = animation.FuncAnimation(fig, animate, interval=1000)
-    # plt.show()
+    ani = animation.FuncAnimation(fig, animate, interval=1000)
+    plt.show()
 
     # Find angle
-    noise1 = df.iloc[-1, df.columns.get_loc("y1")]
-    noise2 = df.iloc[-1, df.columns.get_loc("y2")]
-    noise3 = df.iloc[-1, df.columns.get_loc("y3")]
-    N2X = math.sin(1.0472) * noise2 / math.sin(1.5708)
-    N2Y = noise2
+    values[0] = df.iloc[-1, df.columns.get_loc("y1")]
+    values[1] = df.iloc[-1, df.columns.get_loc("y2")]
+    values[2] = df.iloc[-1, df.columns.get_loc("y3")]
+    # Print the ADC values.
+    print('| {0:>6} | {1:>6} | {2:>6} |'.format(*values))
 
-    N3X = math.sin(1.0472) * noise3 / math.sin(1.5708)
-    N3Y = noise3
+    N2X = math.sin(1.0472) * values[1] / math.sin(1.5708)
+    N2Y = values[1]
+
+    N3X = math.sin(1.0472) * values[2] / math.sin(1.5708)
+    N3Y = values[2]
 
     X = N3X - N2X
     # Serial.print("x: ")
     # Serial.println(X)
 
-    Y = noise1 - N2Y - N3Y
+    Y = values[0] - N2Y - N3Y
     # Serial.print("y: ")
     # Serial.println(Y)
 
