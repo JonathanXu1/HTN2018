@@ -10,7 +10,6 @@ ExponentialFilter<long> FilteredNoise2(3, 0);
 ExponentialFilter<long> FilteredNoise3(3, 0);
 long diff1, diff2, diff3;
 
-
 void setup()
 {
     Serial.begin(9600);
@@ -95,10 +94,13 @@ void loop()
 //    Serial.println(angle);
 //    
  
-    Serial.print(smoothNoise1);
-    Serial.print(","); 
-    Serial.print(smoothNoise2);
-    Serial.print(","); 
-    Serial.println(smoothNoise3);
+//    Serial.print(smoothNoise1);
+//    Serial.print(","); 
+//    Serial.print(smoothNoise2);
+//    Serial.print(","); 
+//    Serial.println(smoothNoise3);
+    long cust[] = {angle, smoothNoise1, smoothNoise2, smoothNoise3};
+    Serial.write((byte*) cust, sizeof(cust));
     delay(50);
 }
+
