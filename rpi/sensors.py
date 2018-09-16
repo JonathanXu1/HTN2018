@@ -95,10 +95,10 @@ while True:
         # Each value will be a 12 or 16 bit signed integer value depending on the
         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
     # Print the ADC values.
-    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+    print('| {0:>6} | {1:>6} | {2:>6} |'.format(*values))
     '''
     #Socket send
-    message = '| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values)
+    message = '| {0:>6} | {1:>6} | {2:>6} |'.format(*values)
     client.send("target:".encode())
     client.recv(1024).decode()
     client.send(pickle.dumps(message))
@@ -107,23 +107,28 @@ while True:
     #Plotting
     df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]}, index = [0])
     df.append(df2)
-    for i in range(4):
-        df[i] = exponential_smoothing(df[i], 0.05)
+    df['y1'] = exponential_smoothing(df['y1'], 0.05)
+    df['y2'] = exponential_smoothing(df['y2'], 0.05)
+    df['y3'] = exponential_smoothing(df['y3'], 0.05)
+
     # ani = animation.FuncAnimation(fig, animate, interval=1000)
     # plt.show()
 
     # Find angle
-    N2X = math.sin(1.0472) * df['y2'][-1] / math.sin(1.5708)
-    N2Y = df['y2'][-1]
+    noise1 = df.iloc[-1, df.columns.get_loc("y1")]
+    noise2 = df.iloc[-1, df.columns.get_loc("y2")]
+    noise3 = df.iloc[-1, df.columns.get_loc("y3")]
+    N2X = math.sin(1.0472) * noise2 / math.sin(1.5708)
+    N2Y = noise2
 
-    N3X = math.sin(1.0472) * df['y3'][-1] / math.sin(1.5708)
-    N3Y = df['y3'][-1]
+    N3X = math.sin(1.0472) * noise3 / math.sin(1.5708)
+    N3Y = noise3
 
     X = N3X - N2X
     # Serial.print("x: ")
     # Serial.println(X)
 
-    Y = df['y1'][-1] - N2Y - N3Y
+    Y = noise1 - N2Y - N3Y
     # Serial.print("y: ")
     # Serial.println(Y)
 
@@ -154,3 +159,4 @@ while True:
     print(angle)
     # Pause for half a second.
     time.sleep(0.01)
+ 
