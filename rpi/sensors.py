@@ -115,17 +115,17 @@ while True:
     # plt.show()
 
     # Find angle
-    N2X = math.sin(1.0472) * df[1][-1] / math.sin(1.5708)
-    N2Y = df[1][-1]
+    N2X = math.sin(1.0472) * df['y2'][-1] / math.sin(1.5708)
+    N2Y = df['y2'][-1]
 
-    N3X = math.sin(1.0472) * df[2][-1] / math.sin(1.5708)
-    N3Y = df[2][-1]
+    N3X = math.sin(1.0472) * df['y3'][-1] / math.sin(1.5708)
+    N3Y = df['y3'][-1]
 
     X = N3X - N2X
     # Serial.print("x: ")
     # Serial.println(X)
 
-    Y = df[0][-1] - N2Y - N3Y
+    Y = df['y1'][-1] - N2Y - N3Y
     # Serial.print("y: ")
     # Serial.println(Y)
 
