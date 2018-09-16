@@ -1,7 +1,13 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
 <style>
+body {
+overflow-x: hidden !important;
+}
+
 .garden {
+  position: absolute;
   width : 100vw;
   height: 100vh;
 }
@@ -14,15 +20,127 @@
   height: 20px;
   background: green;
   border-radius: 100%;
-}
+  
+}   
+ video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    div.select {
+      margin: 0 0 1em 0;
+    }
+	.words {
+	position: absolute;
+	top: 150px;
+	left: 0;
+	z-index: 999;
+	color: #fff;
+	}
+	.words p {
+	font-size: 24px;
+	color: red;
+	}
 </style>
 </head>
 <body>
-<div class="garden">
-  <div class="ball"></div>
-</div>
+  <div id="container">
+    <div class="select">
+      <select id="videoSource"></select>
+    </div>
+	  <div class="garden"><div class="words" contenteditable></div></div>
+  </div>
+    <video muted autoplay></video>
+  </div>
 
-<pre class="output"></pre>
+
+
+
+    <script>
+
+      'use strict';
+
+      var videoElement = document.querySelector('video');
+      var videoSelect = document.querySelector('select#videoSource');
+
+      navigator.mediaDevices.enumerateDevices()
+        .then(gotDevices).then(getStream).catch(handleError);
+
+      videoSelect.onchange = getStream;
+
+      function gotDevices(deviceInfos) {
+        for (var i = 0; i !== deviceInfos.length; ++i) {
+          var deviceInfo = deviceInfos[i];
+          var option = document.createElement('option');
+          option.value = deviceInfo.deviceId;
+          if (deviceInfo.kind === 'videoinput') {
+            option.text = deviceInfo.label || 'camera ' +
+              (videoSelect.length + 1);
+            videoSelect.appendChild(option);
+          }
+        }
+      }
+
+      function getStream() {
+        if (window.stream) {
+          window.stream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
+
+        var constraints = {
+          video: {
+            deviceId: { exact: videoSelect.value }
+          }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints).
+          then(gotStream).catch(handleError);
+      }
+
+      function gotStream(stream) {
+        window.stream = stream;
+        videoElement.srcObject = stream;
+      }
+
+      function handleError(error) {
+        console.log('Error: ', error);
+      }
+
+    </script>
+	
+<script>
+  window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const recognition = new SpeechRecognition();
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  
+  let p = document.createElement('p');
+  let words = document.querySelector('.words');
+  words.appendChild(p);
+
+  recognition.addEventListener('result', e => {
+    const transcript = Array.from(e.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+
+      p.textContent = transcript;
+
+      if (e.results[0].isFinal) {
+		words.deleteContents();
+        p = document.createElement('p');
+        words.appendChild(p);
+      }
+  });
+
+  recognition.addEventListener('end', recognition.start);
+
+  recognition.start();
+
+</script>
 <script>
 var oldY = 0;
 
@@ -30,52 +148,62 @@ function initialGamma(event) {
   oldY = event.alpha;
   window.removeEventListener('deviceorientation', initialGamma);
 }
-//window.addEventListener('deviceorientation', initialGamma);
+window.addEventListener('deviceorientation', initialGamma);
 
-var ball   = document.querySelector('.ball');
+var ball   = document.querySelector('.words');
 var garden = document.querySelector('.garden');
-var output = document.querySelector('.output');
 
 var maxX = garden.clientWidth  - ball.clientWidth;
 var maxY = garden.clientHeight - ball.clientHeight;
 
-var dot = 0;
-var dotAngle = 270;
+var dot = 0
+var dotAngle = 0;
 var angleChange = 0;
+var newAngleChange = 0;
 var newY = 0;
+
+function scaleNum (val, max, min, multiplier) { return ((val - min) / (max - min)) * multiplier; }
+
+function between(x, min, max) {
+  return x >= min && x <= max;
+}
 
 function handleOrientation(event) {
 	newY = event.alpha;
 	
-	angleChange = oldY - newY;
+	angleChange = newY - oldY;
 	
-	if (angleChange < 0){
-		dotAngle += angleChange;
+	if (0 < dotAngle < 180) {
+		if (angleChange < 100) {
+			dotAngle -= angleChange
+		} else {
+			newAngleChange = 360 - Math.abs(angleChange);
+			if (angleChange > 0) {
+				dotAngle += newAngleChange;
+			} else {
+				dotAngle -= newAngleChange;
+			}
 		}
-	else if(angleChange > 0) {
-		dotAngle -= angleChange;
-		}
-	
-	
-	if (0 < dotAngle < 50) {
-		dot = 2280-(((51-dotAngle)/50)*1140);
-	} else if (360 > dotAngle > 310) {
-		dot = (51-((360-dotAngle)/50))*1140;
-	} else if (50 < dotAngle < 180) {
-		dot = 2280;
-	} else if (310 > dotAngle > 181) {
-		dot = 0;
+	}
+	if (dotAngle > 360) {
+		dotAngle -= 360;
+	}
+	if (dotAngle < 0) {
+		dotAngle += 360;
+	}
+
+	if (between(dotAngle, 0, 50)) {
+		words.style.left = scaleNum(dotAngle, 0, 50, 540);
+	} else if (between(dotAngle, 50, 180)) {
+		words.style.left = 30;
+	} else if (between(dotAngle, 181, 310)) {
+		words.style.left = 700;
+	} else if (between(dotAngle, 310, 360)) {
+		words.style.left = scaleNum(dotAngle, 310, 360, 540) + 540;
 	}
 	
-	output.innerHTML = "newy: " + newY + "dota: " + dotAngle
 
-	
-	
-	
-	
-	ball.style.left = dot;
-	
-	oldY = 0;
+	oldY = newY;
 }
 
 window.addEventListener('deviceorientation', handleOrientation);
