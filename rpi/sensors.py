@@ -4,9 +4,19 @@ import socket
 import pickle
 import client
 
+# Matplotlib stuff
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import pandas as pd
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("Sensor readings")
+plt.legend()
+fig = plt.figure()
+ax = plt.axes(1,1,1)
+
 # Create an ADS1115 ADC (16-bit) instance.
 adc = Adafruit_ADS1x15.ADS1115()
-
 # Or create an ADS1015 ADC (12-bit) instance.
 # adc = Adafruit_ADS1x15.ADS1015()
 
@@ -24,6 +34,23 @@ adc = Adafruit_ADS1x15.ADS1115()
 #  -  16 = +/-0.256V
 # See table 3 in the ADS1015/ADS1115 datasheet for more info on gain.
 GAIN = 1
+
+#Create lists to store everything
+df = pd.DataFrame({'y1': 0, 'y2': 0, 'y3': 0})
+
+def animate():
+    for i in df:
+        df[i] = exponential_smoothing(df[i], 0.05)
+        plt.plot(df[i], label='mic %s' % i)
+
+'''simple exponential smoothing go back to last N values
+ y_t = a * y_t + a * (1-a)^1 * y_t-1 + a * (1-a)^2 * y_t-2 + ... + a*(1-a)^n * 
+y_t-n'''
+def exponential_smoothing(panda_series, alpha_value):
+    output = sum([alpha_value * (1 - alpha_value) ** i * x for i, x in
+                  enumerate(reversed(panda_series))])
+    return output
+
 
 print('Reading ADS1x15 values, press Ctrl-C to quit...')
 # Print nice channel column headers.
@@ -61,6 +88,12 @@ while True:
     client.send("target:".encode())
     client.recv(1024).decode()
     client.send(pickle.dumps(message))
-    ''' 
+    '''
+
+    #Plotting
+    df2 = pd.DataFrame({'y1': values[0], 'y2': values[1], 'y3': values[2]})
+    df.append(df2)
+    ani = animation.FuncAnimation(fig, animate, interval=1000)
+    plt.show()
     # Pause for half a second.
     time.sleep(0.01)
